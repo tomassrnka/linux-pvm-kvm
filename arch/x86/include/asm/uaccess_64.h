@@ -19,10 +19,12 @@
  */
 static inline unsigned long __untagged_addr(unsigned long addr)
 {
+	unsigned long mask = this_cpu_read(tlbstate_untag_mask);
 	asm (ALTERNATIVE("",
-			 "and " __percpu_arg([mask]) ", %[addr]", X86_FEATURE_LAM)
+			 "and %[mask], %[addr]", X86_FEATURE_LAM)
 	     : [addr] "+r" (addr)
-	     : [mask] "m" (__my_cpu_var(tlbstate_untag_mask)));
+	     : [mask] "r" (mask)
+	     : "memory");
 
 	return addr;
 }
